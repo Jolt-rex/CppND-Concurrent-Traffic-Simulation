@@ -64,23 +64,24 @@ void TrafficLight::cycleThroughPhases()
     int duration = rand()%(LONGEST_LIGHT_CHANGE_TIME - SHORTEST_LIGHT_CHANGE_TIME + 1) + SHORTEST_LIGHT_CHANGE_TIME;
 
     auto t_start = std::chrono::high_resolution_clock::now();
+    auto t_now = std::chrono::high_resolution_clock::now();
+    auto t_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start).count();
 
     while(true) {
         // wait 1 millisecond to reduce load on CPU
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        auto t_now = std::chrono::high_resolution_clock::now();
+        t_now = std::chrono::high_resolution_clock::now();
 
         // calculate the elapsed time between loop iterations
-        auto t_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start).count();
+        t_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start).count();
 
         // if we have passed the random duration time, toggle the phase
         // and send the current phase to the que
         // reset the start time for the next phase cycle
         if(t_elapsed > duration) {
             togglePhase();
-            TrafficLightPhase currentPhase = _currentPhase;
-            _que->send(std::move(currentPhase));
+            _que->send(std::move(_currentPhase));
 
             t_start = std::chrono::high_resolution_clock::now();
         }
