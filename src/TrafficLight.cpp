@@ -19,6 +19,9 @@ void MessageQueue<T>::send(T &&msg)
 {
     std::lock_guard<std::mutex> u_lock(_mutex);
 
+    // clear the que first for intersections that are not used often
+    _queue.clear();
+
     // add message to the que
     _queue.emplace_back(msg);
     _cond.notify_one();
